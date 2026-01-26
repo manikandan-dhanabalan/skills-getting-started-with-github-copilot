@@ -43,6 +43,40 @@ document.addEventListener("DOMContentLoaded", () => {
         option.value = name;
         option.textContent = name;
         activitySelect.appendChild(option);
+
+        // Add delete icon next to each participant
+        const participantsContainer = activityCard.querySelector(".participants ul");
+        if (participantsContainer) {
+          participantsContainer.querySelectorAll("li").forEach((li) => {
+            const deleteIcon = document.createElement("span");
+            deleteIcon.textContent = "🗑️";
+            deleteIcon.style.cursor = "pointer";
+            deleteIcon.style.marginLeft = "10px";
+
+            deleteIcon.addEventListener("click", async () => {
+              const email = li.textContent.replace("🗑️", "").trim();
+              try {
+                const unregisterResponse = await fetch(`/activities/${name}/unregister`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ email }),
+                });
+
+                if (unregisterResponse.ok) {
+                  li.remove();
+                  alert(`${email} has been unregistered from ${name}`);
+                } else {
+                  alert(`Failed to unregister ${email}.`);
+                }
+              } catch (error) {
+                console.error("Error unregistering participant:", error);
+                alert("An error occurred while trying to unregister the participant.");
+              }
+            });
+
+            li.appendChild(deleteIcon);
+          });
+        }
       });
     } catch (error) {
       activitiesList.innerHTML = "<p>Failed to load activities. Please try again later.</p>";

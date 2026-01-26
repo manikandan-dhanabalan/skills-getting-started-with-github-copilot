@@ -105,3 +105,17 @@ def signup_for_activity(activity_name: str, email: str):
     # Add student
     activity["participants"].append(email)
     return {"message": f"Signed up {email} for {activity_name}"}
+
+
+# Add endpoint to unregister a participant
+@app.post("/activities/{activity_name}/unregister")
+def unregister_participant(activity_name: str, email: str):
+    activity = activities.get(activity_name)
+    if not activity:
+        raise HTTPException(status_code=404, detail="Activity not found")
+
+    if email not in activity["participants"]:
+        raise HTTPException(status_code=400, detail="Student not registered for this activity")
+
+    activity["participants"].remove(email)
+    return {"message": f"Unregistered {email} from {activity_name}"}
